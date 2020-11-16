@@ -3,17 +3,28 @@
 #see alkane_rt.rds for example
 
 library(tidyverse)
-sample_rt <- 10.000
+
 
 ri_calculation <- function(sample_rt, alkane_rt) {
+  sort_table <- alkane_rt %>% 
+    add_row(instrument_rt = sample_rt) %>% 
+    arrange(instrument_rt) %>%
+    pull(which(is.na(ki)))
   
+  samp_pos <- pull(which(is.na(sort_table$ki)))
+  
+  n <- alkane_rt[samp_pos-1, 1]
+  tn <- alkane_rt[samp_pos-1, 3]
+  tN <- alkane_rt[samp_pos, 3]
+  
+  ri_value <- 100*(n+((sample_rt - tn)/(tN - tn))) 
+  
+  ri_value <- round(ri_value)
+ 
+  return(ri_value) 
 }
 
+ri_calculation(9.34, alkane_rt)
 
-samp_pos <- alkane_rt %>% 
-  add_row(instrument_rt = sample_rt) %>% 
-  arrange(instrument_rt) 
+sample_rt = 9.34
 
-samp_pos <- which(is.na(samp_pos$ki))
-
-ri_value <- 100((samp_pos-1)+((sample_rt - alkane_rt[samp_pos-1, 3])))
